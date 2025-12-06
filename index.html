@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lights Out – ITC505 Final – Unnikurma Hari Prasad</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fun Google Font (font-craziness) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kablammo&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #111, #000);
+      color: #f5f5f5;
+      font-family: "Open Sans", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    h1 {
+      font-family: "Kablammo", cursive;
+      color: #ffeb3b;
+      text-align: center;
+      letter-spacing: 2px;
+      margin-top: 1rem;
+    }
+
+    p {
+      text-align: center;
+      max-width: 600px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(5, 60px);
+      grid-template-rows: repeat(5, 60px);
+      gap: 6px;
+      margin: 1.5rem 0;
+    }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      background-color: yellow;
+      cursor: pointer;
+      border: 1px solid #555;
+      transition: background-color 0.2s ease;
+    }
+
+    .cell.is-off {
+      background-color: #111;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      border: none;
+      background: linear-gradient(135deg, #ffeb3b, #ff9800);
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0.3rem;
+    }
+
+    button:hover {
+      filter: brightness(1.1);
+    }
+
+    footer {
+      margin-top: auto;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #ccc;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Lights Out Game</h1>
+  <p>Made by <strong>Unnikurma Hari Prasad</strong><br>
+     Turn off all the lights! Click a square to toggle it and its neighbors. When every light is off, you’ll see “You win!”</p>
+
+  <div class="board" id="board"></div>
+
+  <div>
+    <button id="newGame">New Random Puzzle</button>
+    <button id="reset">Reset Board</button>
+  </div>
+
+  <script>
+    (function () {
+      const SIZE = 5;
+      let cells = [];
+      const board = document.getElementById("board");
+
+      // Create 5x5 grid
+      function createBoard() {
+        board.innerHTML = "";
+        cells = [];
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const cell = document.createElement("div");
+            cell.className = "cell is-off";
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            cell.addEventListener("click", () => press(r, c, true));
+            board.appendChild(cell);
+            cells.push(cell);
+          }
+        }
+      }
+
+      function index(r, c) {
+        return r * SIZE + c;
+      }
+
+      function toggle(r, c) {
+        if (r < 0 || r >= SIZE || c < 0 || c >= SIZE) return;
+        cells[index(r, c)].classList.toggle("is-off");
+      }
+
+      // Click logic
+      function press(r, c, checkWin) {
+        toggle(r, c);
+        toggle(r - 1, c);
+        toggle(r + 1, c);
+        toggle(r, c - 1);
+        toggle(r, c + 1);
+
+        if (checkWin && isWin()) {
+          window.alert("You win!");
+        }
+      }
+
+      // Win check
+      function isWin() {
+        return cells.every(cell => cell.classList.contains("is-off"));
+      }
+
+      // Solved (all off)
+      function reset() {
+        cells.forEach(cell => {
+          if (!cell.classList.contains("is-off")) cell.classList.add("is-off");
+        });
+      }
+
+      // Random but solvable start
+      function randomize() {
+        reset();
+        for (let i = 0; i < 8; i++) {
+          const r = Math.floor(Math.random() * SIZE);
+          const c = Math.floor(Math.random() * SIZE);
+          press(r, c, false);
+        }
+        if (isWin()) randomize();
+      }
+
+      document.getElementById("newGame").addEventListener("click", randomize);
+      document.getElementById("reset").addEventListener("click", reset);
+
+      createBoard();
+      randomize();
+    })();
+  </script>
+
+  <!-- Required Footer -->
+  <footer>
+    <p>Last updated: <span id="lastModified"></span></p>
+  </footer>
+  <script type="text/javascript">
+    var x = document.lastModified;
+    document.getElementById('lastModified').textContent = x;
+  </script>
+</body>
+</html>
